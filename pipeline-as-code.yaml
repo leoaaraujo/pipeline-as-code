@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: w01-pipeline-as-code
+  namespace: w01-asd2-pipelines
+spec:
+  tasks:
+    - name: task-1
+      params:
+        - name: SCRIPT
+          value: oc whoami --show-server
+        - name: VERSION
+          value: latest
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client-1-14-0
+      workspaces:
+        - name: kubeconfig-dir
+          workspace: kubeconfig-dir
+    - name: task-2
+      params:
+        - name: SCRIPT
+          value: oc get nodes
+        - name: VERSION
+          value: latest
+      runAfter:
+        - task-1
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client-1-14-0
+      workspaces:
+        - name: kubeconfig-dir
+          workspace: kubeconfig-dir
+    - name: task-3
+      params:
+        - name: SCRIPT
+          value: oc get co
+        - name: VERSION
+          value: latest
+      runAfter:
+        - task-2
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client-1-14-0
+      workspaces:
+        - name: kubeconfig-dir
+          workspace: kubeconfig-dir
+  workspaces:
+    - name: kubeconfig-dir
